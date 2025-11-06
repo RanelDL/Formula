@@ -1,0 +1,19 @@
+# State estimation and mapping:
+* whats SLAM?
+  Simultaious Localization And Mapping is a problem which involves percieving an environment and memorizing its boundaries  
+  while also keeping track of the agent's position relative to it.
+*what is it used for:
+  Used by autonomous agents in unknown environments for path finding and obstacle avoidance. 
+  Without SLAM: autonomous robots would traverse an environment purely by hardcoded guessing, effectively wasting time (traversing the same 
+  areas again and again) and money ( draining the battery by executing ineffective movements).
+
+# Planning:
+Raceline? method to follow a raceline, pros cons
+
+# Control:
+  * Whats a PID controller?
+    A Proportional-Integral-Derivative controller is a feedback loop modulation method that uses:
+    An output proportional to the magnitude of error ( deviation of the measured Process Value from the Set Point)
+    The integral of past accumulated residual ( deviation of the PV from the *estimated true value)
+    The derivative of the current error, predicting future error by measuring its rate of change over time.
+    The three terms form a weighted sum that represents the control function which is used to modulate some output.
