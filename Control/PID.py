@@ -12,6 +12,7 @@ class Vehicle:
     def __init__(self, mass=250, drag_coeff=0.7, max_force=4000):
         self.mass = mass              # kg
         self.drag_coeff = drag_coeff  # unitless
+        self.C_rr = 0.015             # rolling resistance of tires
         self.max_force = max_force    # Newtons (max engine force)
         self.max_power_watts = 80000  # 80kW 
 
@@ -45,6 +46,13 @@ class Vehicle:
         
         return force
 
+    def get_resistive_force(self, current_speed):
+        # Aerodynamic drag force is proportional to the square of velocity
+        drag_force = self.drag_coeff * current_speed**2
+
+        friction_force = self.C_rr * self.mass * 9.81
+        return drag_force + friction_force
+    
     def update(self, throttle, dt):
         """
         Update the vehicle's state after a time step dt.
@@ -60,14 +68,10 @@ class Vehicle:
         # engine_force = self.get_propulsion_force(throttle) #throttle * self.max_force
         engine_force = throttle * self.max_force
         
-        # Aerodynamic drag force is proportional to the square of velocity
-        drag_force = self.drag_coeff * self.velocity**2
-
-        C_rr = 0.015 # rolling resitance of tires
-        friction_force = C_rr * self.mass * 9.81
+        resistive_force = self.get_resistive_force(self.velocity)
         
         # Total force is engine force minus drag
-        total_force = engine_force - drag_force - friction_force
+        total_force = engine_force - resistive_force 
         
         # Calculate acceleration (F=ma)
         acceleration = total_force / self.mass
@@ -82,8 +86,8 @@ class Vehicle:
 
 # --- Simulation Setup ---
 TARGET_SPEED = 25.0  # Target speed in m/s (approx 90 km/h or 56 mph)
-SIMULATION_TIME = 80 # seconds
-DT = 0.05             # Time step in seconds
+SIMULATION_TIME = 30 # seconds
+DT = 0.05             # Time step in seconds (5ms)
 
 # --- PID Controller Setup ---
 # These Kp, Ki, Kd values are the "gains" you need to tune.
@@ -113,6 +117,11 @@ def animate(frame):
         
     # 2. Calculate the PID output (the new throttle setting)
     throttle = pid(current_speed)
+
+    # 2.5: Calculate feed-forward term for throttle smoothing
+    feed_forward_throttle = car.get_resistive_force(TARGET_SPEED)/car.max_force
+
+    # throttle += feed_forward_throttle #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         
     # 3. Update the car's state using the new throttle
     car.update(throttle, DT)
